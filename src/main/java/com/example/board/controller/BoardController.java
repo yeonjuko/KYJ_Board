@@ -1,42 +1,49 @@
 package com.example.board.controller;
 
 import com.example.board.domain.Board;
+import com.example.board.domain.BoardDTO;
 import com.example.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 @Controller
-@RequestMapping("/board")
 @RequiredArgsConstructor
 public class BoardController {
 
+    @Autowired
     private final BoardService boardService;
-    @GetMapping("/list")
+    @GetMapping("/board")
     public String list(Model model){
-        model.addAttribute("board", boardService.list());
-        return "list";
+        model.addAttribute("boards", boardService.getBoardList());
+        return "board/list";
     }
 
-    @GetMapping("/detail/{id}")
+    @GetMapping("/board/{id}")
     public String detail(@PathVariable Long id, Model model){
-        model.addAttribute("board", boardService.detail(id));
-        return "detail";
+        Board board = boardService.getBoard(id);
+        Set<Board> relatedBoards = boardService.getRelatedBoards(id);
+        model.addAttribute("board", board);
+        model.addAttribute("relatedBoards", relatedBoards);
+        return "board/detail";
     }
 
-    @GetMapping("/register")
+
+    @GetMapping("/board/register")
     public String registerGet(){
-        return "register";
+        return "board/register";
     }
 
-    @PostMapping("/register")
+    @PostMapping("/board/register")
     public String registerPost(Board board){
-        boardService.register(board);
-        return "redirect:/board/list";
+        boardService.createdBoard(board);
+        return "redirect:/board";
     }
+
 
 }
